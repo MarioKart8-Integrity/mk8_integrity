@@ -1,6 +1,9 @@
 use serde::Deserialize;
 use std::fs;
 
+/// ## Paths
+///
+/// The path to the folder where `MK8` and `CEMU` are installed
 #[derive(Deserialize, Debug)]
 pub struct Paths {
     mk8_folder: String,
@@ -8,6 +11,9 @@ pub struct Paths {
     // add other paths
 }
 
+/// ## Config
+///
+/// The configuration of the program
 #[derive(Deserialize, Debug)]
 pub struct Config {
     paths: Paths,
@@ -15,6 +21,7 @@ pub struct Config {
 }
 
 impl Config {
+    /// Prints the config of the program as a debug message
     pub fn print_config(&self) {
         dbg!(&self);
     }
