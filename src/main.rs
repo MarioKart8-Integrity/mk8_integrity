@@ -1,7 +1,8 @@
-// mod file_integrity;
-mod tool_settings;
+use config::Config;
+
+mod config;
 
 fn main() {
-    println!("Hello, world!");
-    tool_settings::ToolsSettings::new();
+    let cfg = Config::new();
+    Config::print_config(&cfg)
 }

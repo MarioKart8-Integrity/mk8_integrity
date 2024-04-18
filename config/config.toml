@@ -1,5 +1,3 @@
-title = "mk8_integrity config"
-
-[config]
-game_path = "~/Documents/Dumpling/Updates/mk8/"
-cemu_path = "~/Documents/CEMU/"
+[paths]
+mk8_folder = "~/Documents/Dumpling/Updates/mk8/"
+cemu_folder = "~/Documents/CEMU/"
