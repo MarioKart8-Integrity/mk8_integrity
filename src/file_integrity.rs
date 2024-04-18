@@ -1,13 +1,14 @@
 /// TODO: how to retrieve the actual pure checksum (reference value)
 use serde::{Deserialize, Serialize};
-use std::fs::{File, Path};
 
 /// Fictional struct for the moment / prob use an external library
-struct Checksum {
+#[derive(PartialEq)]
+pub struct Checksum {
     value: u32,
 }
 
 /// A MK8 game file and its expected `Checksum` (ref. value).
+#[derive(PartialEq)]
 struct GameFile {
     path: &'static str,
     expected_checksum: Checksum,
