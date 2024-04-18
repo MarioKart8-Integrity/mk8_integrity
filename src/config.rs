@@ -26,14 +26,21 @@ impl Config {
         dbg!(&self);
     }
 
-    pub fn new() -> Config {
+    pub fn new() -> Option<Config> {
         let file_path = "config/config.toml";
-        let contents =
-            fs::read_to_string(file_path).expect("Should have been able to read the file");
+        let contents = fs::read_to_string(file_path);
 
-        let config: Config =
-            toml::from_str(&contents).expect("The TOML should be properly formatted");
-
-        config
+        if let Ok(str_contents) = contents {
+            let config: Result<Config, toml::de::Error> = toml::from_str(&str_contents);
+            if let Ok(parsed_config) = config {
+                Some(parsed_config)
+            } else {
+                eprintln!("Error paersing TOML: {:?}", config.unwrap_err());
+                None
+            }
+        } else {
+            eprintln!("Error reading file: {:?}", contents.unwrap_err());
+            None
+        }
     }
 }
