@@ -27,3 +27,6 @@ cargo run 'path/to/game'
 - Checking for `ptrace` permissions.
 - Checking for impossible input combos.
 - Replicating some of MOSS features, see more --> [MOSS](https://nohope.eu/).
+  - Random screenshots of the monitors.
+  - PID and names of opened/closed programs while the tool is running.
+  - ...and more.
