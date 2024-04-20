@@ -1,14 +1,13 @@
 /// TODO: how to retrieve the actual pure checksum (reference value)
-use serde::{Deserialize, Serialize};
 
 /// Fictional struct for the moment / prob use an external library
-#[derive(PartialEq)]
+#[derive(Clone, Debug, PartialEq, PartialOrd, Hash)]
 pub struct Checksum {
     value: u32,
 }
 
 /// A MK8 game file and its expected `Checksum` (ref. value).
-#[derive(PartialEq)]
+#[derive(Clone, Debug, PartialEq, PartialOrd, Hash)]
 struct GameFile {
     path: &'static str,
     expected_checksum: Checksum,
@@ -26,7 +25,7 @@ impl GameFile {
 }
 
 /// Are all those derive useful?
-#[derive(Clone, Debug, PartialEq, PartialOrd, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, PartialOrd, Hash)]
 pub struct FileIntegrity {
     game_files: Vec<GameFile>,
 }
@@ -36,11 +35,11 @@ pub struct FileIntegrity {
 impl FileIntegrity {
     /// Checking if the integrity of the files is good.
     pub fn check(&self) -> bool {
-        for f in self.game_files {
+        for f in self.game_files.iter() {
             if !f.checksums_match() {
                 return false;
             }
         }
-        return true;
+        true
     }
 }
