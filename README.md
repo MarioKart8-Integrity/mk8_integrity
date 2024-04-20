@@ -8,8 +8,10 @@ Language used: `rust`.
 ## Usage
 
 ```bash
-cargo run 'path/to/game'
+cargo run
 ```
+You will also need to change the `config.toml` file in the `config/` folder.
+More on how to fill the config file in the future...
 
 ## To do
 
