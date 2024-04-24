@@ -43,4 +43,8 @@ impl Config {
             None
         }
     }
+
+    pub fn get_mk8_folder(&self) -> &str {
+        &self.paths.mk8_folder
+    }
 }
