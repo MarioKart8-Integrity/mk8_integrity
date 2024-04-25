@@ -1,3 +1,4 @@
+use sha2::{Digest, Sha256};
 use std::{
     fs, io,
     path::{Path, PathBuf},
@@ -10,7 +11,7 @@ use crate::config::Config;
 /// Fictional struct for the moment / prob use an external library
 #[derive(Clone, Debug, PartialEq, PartialOrd, Hash)]
 pub struct Checksum {
-    value: u32,
+    value: Vec<u8>,
 }
 
 /// A MK8 game file and its expected `Checksum` (ref. value).
@@ -22,8 +23,24 @@ struct GameFile {
 
 impl GameFile {
     pub fn compute_real_checksum(&self) -> Checksum {
-        // TODO: compute real checksum using `self.path`
-        Checksum { value: 42 }
+        let mut hasher = Sha256::new();
+        let bytes = match fs::read(&self.path) {
+            Ok(bytes) => bytes,
+            Err(_) => return Checksum { value: vec![] },
+        };
+
+        hasher.update(&bytes);
+
+        let res = hasher.finalize();
+
+        // dbg variables
+        let hex_to_str: String = res.to_vec().iter().map(|b| format!("{:02x}", b)).collect();
+        dbg!(hex_to_str);
+        // end of dbg
+
+        Checksum {
+            value: res.to_vec(),
+        }
     }
 
     pub fn checksums_match(&self) -> bool {
@@ -44,8 +61,6 @@ impl FileIntegrity {
         let mut game_files = Vec::new();
         let game_path = Path::new(cfg.get_mk8_folder());
 
-        println!("new");
-
         // based on the game path, creates the GameFiles by opening every folder and adding every
         // file found in it
         Self::add_files_recursively(game_path, &mut game_files)?;
@@ -59,10 +74,7 @@ impl FileIntegrity {
 
     /// Reads all the sub-directories and add found path to a file to the `game_files` vector
     fn add_files_recursively(path: &Path, game_files: &mut Vec<GameFile>) -> io::Result<()> {
-        println!("Searching files, {}", path.to_str().unwrap_or(""));
-
         if path.is_dir() {
-            println!("path is a dir");
             for entry in fs::read_dir(path)? {
                 let e = entry?;
                 let p = e.path();
@@ -72,7 +84,7 @@ impl FileIntegrity {
                 } else {
                     let g_file: GameFile = GameFile {
                         path: p.to_path_buf(),
-                        expected_checksum: Checksum { value: 0 }, // Placeholder
+                        expected_checksum: Checksum { value: vec![] }, // Placeholder
                     };
                     game_files.push(g_file);
                 }
@@ -86,11 +98,14 @@ impl FileIntegrity {
 
     /// Checking if the integrity of the files is good.
     pub fn check(&self) -> bool {
-        for f in self.game_files.iter() {
-            if !f.checksums_match() {
-                return false;
-            }
-        }
+        let f = &self.game_files[0];
+
+        f.checksums_match();
+        // for f in self.game_files.iter() {
+        //     if !f.checksums_match() {
+        //         return false;
+        //     }
+        // }
         true
     }
 }

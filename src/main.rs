@@ -12,7 +12,8 @@ fn main() {
             match FileIntegrity::new(&cfg) {
                 Ok(integrity) => {
                     // No error, prints the struct
-                    FileIntegrity::print_file_integrity(&integrity);
+                    // FileIntegrity::print_file_integrity(&integrity);
+                    let t = FileIntegrity::check(&integrity);
                 }
                 Err(e) => {
                     // If an error occurs while reading directories/files, handle it here
