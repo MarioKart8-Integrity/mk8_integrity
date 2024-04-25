@@ -35,7 +35,7 @@ impl GameFile {
 
         // dbg variables
         let hex_to_str: String = res.to_vec().iter().map(|b| format!("{:02x}", b)).collect();
-        dbg!(hex_to_str);
+        dbg!(&self.path, hex_to_str);
         // end of dbg
 
         Checksum {
@@ -98,14 +98,11 @@ impl FileIntegrity {
 
     /// Checking if the integrity of the files is good.
     pub fn check(&self) -> bool {
-        let f = &self.game_files[0];
-
-        f.checksums_match();
-        // for f in self.game_files.iter() {
-        //     if !f.checksums_match() {
-        //         return false;
-        //     }
-        // }
+        for f in self.game_files.iter() {
+            if !f.checksums_match() {
+                return false;
+            }
+        }
         true
     }
 }
