@@ -6,6 +6,10 @@ mod file_integrity;
 const ERROR_STATUS: i32 = -84;
 
 fn main() {
+    tracing_subscriber::fmt::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+
     match Config::new() {
         Some(cfg) => {
             Config::print_config(&cfg);
