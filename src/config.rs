@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use std::fs;
+use thiserror::Error;
 
 /// ## Paths
 ///
@@ -47,4 +48,13 @@ impl Config {
     pub fn get_mk8_folder(&self) -> &str {
         &self.paths.mk8_folder
     }
+}
+
+/// An error that occurs while loading the tool's configuration file.
+#[derive(Clone, Debug, Error)]
+pub enum ConfigError {
+    #[error("Couldn't find the given config file at given path: {0}")]
+    NotFound(String),
+    #[error("Confguration file uses an invalid schema: {0}")]
+    ParseFailed(#[from] toml::de::Error),
 }
