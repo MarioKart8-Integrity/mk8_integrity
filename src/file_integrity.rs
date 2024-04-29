@@ -4,6 +4,7 @@ use std::{
     fs, io,
     path::{Path, PathBuf},
 };
+use thiserror::Error;
 
 use crate::config::Config;
 
@@ -13,6 +14,12 @@ use crate::config::Config;
 #[derive(Clone, Debug, PartialEq, PartialOrd, Hash)]
 pub struct Checksum {
     value: Vec<u8>,
+}
+
+impl std::fmt::Display for Checksum {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", hex::encode(&self.value))
+    }
 }
 
 /// A MK8 game file and its expected `Checksum` (ref. value).
@@ -61,18 +68,21 @@ pub struct FileIntegrity {
 /// Apparently does not need to have a `new` because we can
 /// serde::Deserialize it from the config.
 impl FileIntegrity {
-    pub fn new(cfg: &Config) -> io::Result<Self> {
+    pub fn new(cfg: &Config) -> Result<Self, IntegrityError> {
         let mut game_files = Vec::new();
         let game_path = Path::new(cfg.get_mk8_folder());
 
-        // based on the game path, creates the GameFiles by opening every folder and adding every
-        // file found in it
+        // based on the game path, creates the GameFiles by opening every
+        // folder and adding every file found in it
         Self::add_files_recursively(game_path, &mut game_files)?;
         Ok(FileIntegrity { game_files })
     }
 
     /// Reads all the sub-directories and add found path to a file to the `game_files` vector
-    fn add_files_recursively(path: &Path, game_files: &mut Vec<GameFile>) -> io::Result<()> {
+    fn add_files_recursively(
+        path: &Path,
+        game_files: &mut Vec<GameFile>,
+    ) -> Result<(), IntegrityError> {
         if path.is_dir() {
             for entry in fs::read_dir(path)? {
                 let e = entry?;
@@ -89,7 +99,7 @@ impl FileIntegrity {
                 }
             }
         } else {
-            println!("Path does not exist: {}", path.display());
+            tracing::debug!("Path does not exist: {}", path.display());
         }
 
         Ok(())
@@ -104,4 +114,12 @@ impl FileIntegrity {
         }
         true
     }
+}
+
+#[derive(Debug, Error)]
+pub enum IntegrityError {
+    #[error("An expected file was not found. Error: {0}")]
+    MissingFile(#[from] std::io::Error),
+    #[error("A file's checksum does not match any expected ones: {path} shouldn't have the signature of: `{checksum}`")]
+    _ChecksumMismatch { path: String, checksum: Checksum },
 }
