@@ -8,7 +8,7 @@ use thiserror::Error;
 #[derive(Deserialize, Debug)]
 pub struct Paths {
     mk8_folder: String,
-    cemu_folder: String,
+    _cemu_folder: String,
     // add other paths
 }
 
@@ -22,11 +22,6 @@ pub struct Config {
 }
 
 impl Config {
-    /// Prints the config of the program as a debug message
-    pub fn print_config(&self) {
-        dbg!(&self);
-    }
-
     /// Attempts to load the tool's configuration file.
     pub fn new() -> Result<Config, ConfigError> {
         let file_path = "config/config.toml";

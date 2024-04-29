@@ -67,11 +67,6 @@ impl FileIntegrity {
         Ok(FileIntegrity { game_files })
     }
 
-    /// Prints the `FileIntegrity` struct to debug output
-    pub fn print_file_integrity(&self) {
-        dbg!(&self);
-    }
-
     /// Reads all the sub-directories and add found path to a file to the `game_files` vector
     fn add_files_recursively(path: &Path, game_files: &mut Vec<GameFile>) -> io::Result<()> {
         if path.is_dir() {
