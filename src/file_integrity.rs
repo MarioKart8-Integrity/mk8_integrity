@@ -1,5 +1,6 @@
 use sha2::{Digest, Sha256};
 use std::{
+    fmt::Write,
     fs, io,
     path::{Path, PathBuf},
 };
@@ -34,7 +35,10 @@ impl GameFile {
         let res = hasher.finalize();
 
         // dbg variables
-        let hex_to_str: String = res.to_vec().iter().map(|b| format!("{:02x}", b)).collect();
+        let hex_to_str: String = res.to_vec().iter().fold(String::new(), |mut out, b| {
+            write!(out, "{:02x}", b).expect("Checksum hex string");
+            out
+        });
         dbg!(&self.path, hex_to_str);
         // end of dbg
 
