@@ -3,20 +3,21 @@ use file_integrity::FileIntegrity;
 mod config;
 mod file_integrity;
 
-const ERROR_STATUS: i32 = -84;
-
-fn main() {
+fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
 
-    match Config::new() {
-        Ok(cfg) => {
-            Config::print_config(&cfg);
+    match FileIntegrity::new(&Config::new()?) {
+        Ok(app) => {
+            let res = app.check();
+            println!("File check result: {}", res);
         }
         Err(e) => {
-            tracing::error!("Failed to load configuration. Error: {:?}", e);
-            panic!("Couldn't load configuration.");
+            tracing::error!("Failed to initialize the application. Error: {:?}", e);
+            return Err(anyhow::anyhow!("Couldn't initialize the application."));
         }
     }
+
+    Ok(())
 }

@@ -33,7 +33,7 @@ impl Config {
 
         // try to read the file
         let contents = fs::read_to_string(file_path)
-            .map_err(|err| ConfigError::NotFound(file_path.to_string()))?;
+            .map_err(|e| ConfigError::NotFound(format!("{}: {e}", file_path)))?;
 
         // Attempt to parse the actual file
         match toml::from_str(&contents) {
