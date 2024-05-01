@@ -1,7 +1,9 @@
 use config::Config;
 use file_integrity::FileIntegrity;
+use report::Report;
 mod config;
 mod file_integrity;
+mod report;
 
 fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::fmt()
@@ -9,9 +11,12 @@ fn main() -> anyhow::Result<()> {
         .init();
 
     match FileIntegrity::new(&Config::new()?) {
-        Ok(app) => {
-            let res = app.check();
-            println!("File check result: {}", res);
+        Ok(_app) => {
+            // let res = app.check();
+            // println!("File check result: {}", res);
+
+            let report = Report::new();
+            report.generate_report()?;
         }
         Err(e) => {
             tracing::error!("Failed to initialize the application. Error: {:?}", e);
