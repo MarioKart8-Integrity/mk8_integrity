@@ -35,8 +35,22 @@ impl Report {
     pub fn generate_report(&self) -> Result<(), ReportError> {
         const REPORT_FOLDER: &str = "./results/";
 
-        let utc_date = OffsetDateTime::now_utc().to_string();
-        let file_path = format!("{}{}", REPORT_FOLDER, utc_date); 
+        let utc_date = OffsetDateTime::now_utc();
+        let utc_string = {
+            let mut s = String::new();
+
+            // date
+            s.push_str(&utc_date.date().to_string());
+            s.push('_');
+            // time
+            let time = utc_date.time();
+            s.push_str(&time.hour().to_string());
+            s.push(':');
+            s.push_str(&time.minute().to_string());
+            s
+        };
+        
+        let file_path = format!("{}{}.report", REPORT_FOLDER, utc_string);
 
         std::fs::create_dir_all(REPORT_FOLDER)?;
 
