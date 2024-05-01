@@ -8,7 +8,7 @@ use thiserror::Error;
 #[derive(Deserialize, Debug)]
 pub struct Paths {
     mk8_folder: String,
-    _cemu_folder: String,
+    cemu_folder: String,
     // add other paths
 }
 

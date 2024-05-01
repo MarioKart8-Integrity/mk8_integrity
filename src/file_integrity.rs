@@ -105,14 +105,16 @@ impl FileIntegrity {
         Ok(())
     }
 
-    /// Checking if the integrity of the files is good.
+    /// Checking if EVERY file is actully matching the expected checksum
     pub fn check(&self) -> bool {
+        let mut res = true;
+
         for f in self.game_files.iter() {
             if !f.checksums_match() {
-                return false;
+                res = false;
             }
         }
-        true
+        res
     }
 }
 
