@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use std::fs;
+use thiserror::Error;
 
 /// ## Paths
 ///
@@ -7,7 +8,7 @@ use std::fs;
 #[derive(Deserialize, Debug)]
 pub struct Paths {
     mk8_folder: String,
-    cemu_folder: String,
+    _cemu_folder: String,
     // add other paths
 }
 
@@ -21,26 +22,31 @@ pub struct Config {
 }
 
 impl Config {
-    /// Prints the config of the program as a debug message
-    pub fn print_config(&self) {
-        dbg!(&self);
-    }
-
-    pub fn new() -> Option<Config> {
+    /// Attempts to load the tool's configuration file.
+    pub fn new() -> Result<Config, ConfigError> {
         let file_path = "config/config.toml";
-        let contents = fs::read_to_string(file_path);
 
-        if let Ok(str_contents) = contents {
-            let config: Result<Config, toml::de::Error> = toml::from_str(&str_contents);
-            if let Ok(parsed_config) = config {
-                Some(parsed_config)
-            } else {
-                eprintln!("Error paersing TOML: {:?}", config.unwrap_err());
-                None
-            }
-        } else {
-            eprintln!("Error reading file: {:?}", contents.unwrap_err());
-            None
+        // try to read the file
+        let contents = fs::read_to_string(file_path)
+            .map_err(|e| ConfigError::NotFound(format!("{}: {e}", file_path)))?;
+
+        // Attempt to parse the actual file
+        match toml::from_str(&contents) {
+            Ok(conf) => Ok(conf),
+            Err(e) => Err(ConfigError::ParseFailed(e)),
         }
     }
+
+    pub fn get_mk8_folder(&self) -> &str {
+        &self.paths.mk8_folder
+    }
+}
+
+/// An error that occurs while loading the tool's configuration file.
+#[derive(Clone, Debug, Error)]
+pub enum ConfigError {
+    #[error("Couldn't find the given config file at given path: {0}")]
+    NotFound(String),
+    #[error("Confguration file uses an invalid schema: {0}")]
+    ParseFailed(#[from] toml::de::Error),
 }

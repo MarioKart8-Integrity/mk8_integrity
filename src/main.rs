@@ -1,16 +1,23 @@
 use config::Config;
-
+use file_integrity::FileIntegrity;
 mod config;
+mod file_integrity;
 
-fn main() {
-    match Config::new() {
-        Some(cfg) => {
-            Config::print_config(&cfg);
+fn main() -> anyhow::Result<()> {
+    tracing_subscriber::fmt::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+
+    match FileIntegrity::new(&Config::new()?) {
+        Ok(app) => {
+            let res = app.check();
+            println!("File check result: {}", res);
         }
-        None => {
-            eprintln!("Failed to load configuration.");
-            std::process::exit(-84); // Can we also define `const` like c/c++ (const ERROR_STATUS =
-                                     // -84)
+        Err(e) => {
+            tracing::error!("Failed to initialize the application. Error: {:?}", e);
+            return Err(anyhow::anyhow!("Couldn't initialize the application."));
         }
     }
+
+    Ok(())
 }
