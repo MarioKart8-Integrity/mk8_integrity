@@ -1,3 +1,3 @@
 [paths]
-mk8_folder = "~/Documents/Dumpling/Updates/mk8/"
-cemu_folder = "~/Documents/CEMU/"
+mk8_folder = "/home/simonbernabeu/Documents/games/mk8_files/Dumpling/Games/MARIO_KART_8"
+cemu_folder = "/home/simonbernabeu/Documents/GitHub/CEMU/Cemu/"
