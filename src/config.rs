@@ -5,6 +5,7 @@ use thiserror::Error;
 /// ## Paths
 ///
 /// The path to the folder where `MK8` and `CEMU` are installed
+#[allow(unused)] // TODO: remove when we use `cemu_folder`
 #[derive(Deserialize, Debug)]
 pub struct Paths {
     mk8_folder: String,
