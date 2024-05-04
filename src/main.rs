@@ -11,11 +11,11 @@ fn main() -> anyhow::Result<()> {
         .init();
 
     match FileIntegrity::new(&Config::new()?) {
-        Ok(_app) => {
-            // let res = app.check();
+        Ok(app) => {
+            let mut report = Report::new();
+            let _res = app.check(&mut report);
             // println!("File check result: {}", res);
 
-            let report = Report::new();
             report.generate_report()?;
         }
         Err(e) => {

@@ -12,6 +12,16 @@ pub struct ChecksumReport {
     got: String,
 }
 
+impl ChecksumReport {
+    pub fn new(file_path: String, matching: bool, got: String) -> Self {
+        Self {
+            file_path,
+            matching,
+            got,
+        }
+    }
+}
+
 /// A report of all the tool's analysis results.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Report {
@@ -57,7 +67,16 @@ impl Report {
         std::fs::create_dir_all(REPORT_FOLDER)?;
 
         let mut file = std::fs::File::create(file_path)?;
-        file.write("hello world\n".as_bytes())?;
+
+        writeln!(file, "Report generated on: {}\n\n## Checksums", utc_date)?;
+
+        for checksum_report in &self.files_checksums {
+            writeln!(
+                file,
+                "[incorrect] --> {}: {}",
+                checksum_report.file_path, checksum_report.got
+            )?;
+        }
 
         Ok(())
     }
