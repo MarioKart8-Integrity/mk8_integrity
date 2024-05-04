@@ -137,7 +137,8 @@ impl FileIntegrity {
     pub fn check(&mut self) -> Result<(), Vec<ChecksumReport>> {
         let mut failed_files = vec![];
 
-        for f in self.game_files.iter_mut() {
+        // TODO: remove the [..10] slice
+        for f in self.game_files[..10].iter_mut() {
             if !f.checksums_match() {
                 failed_files.push(f.get_report());
             }

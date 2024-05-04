@@ -12,10 +12,16 @@ fn main() -> anyhow::Result<()> {
 
     match FileIntegrity::new(&Config::new()?) {
         Ok(mut app) => {
-            let report = Report::new();
-            let _res = app.check();
-            // println!("File check result: {}", res);
+            let mut report = Report::new();
 
+            match app.check() {
+                Ok(_) => {
+                    // we will not do anything, just continue program
+                }
+                Err(checksum_reports) => {
+                    report.set_incorrect_file_checksums(checksum_reports);
+                }
+            }
             report.generate_report()?;
         }
         Err(e) => {

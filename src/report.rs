@@ -30,6 +30,11 @@ impl Report {
         }
     }
 
+    /// Sets the `incorrect_file_checksums` field from a Vec<ChecksumReport>.
+    pub fn set_incorrect_file_checksums(&mut self, incorrect_file_checksums: Vec<ChecksumReport>) {
+        self.incorrect_file_checksums = incorrect_file_checksums.into_iter().collect();
+    }
+
     /// Writes the report to disk.
     pub fn generate_report(&self) -> Result<(), ReportError> {
         const REPORT_FOLDER: &str = "./results/";
