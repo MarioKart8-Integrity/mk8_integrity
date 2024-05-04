@@ -36,7 +36,7 @@ impl Report {
     }
 
     /// Writes the report to disk.
-    /// TODO: choose the generatted style (markdown, json, etc)
+    /// TODO: choose the generated style (markdown, json, etc)
     pub fn generate_report(&self) -> Result<(), ReportError> {
         const REPORT_FOLDER: &str = "./results/";
 
