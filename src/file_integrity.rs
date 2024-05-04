@@ -6,14 +6,19 @@ use std::{
 };
 use thiserror::Error;
 
-use crate::{config::Config, report::Report};
+use crate::{config::Config, report::ChecksumReport};
 
 /// TODO: how to retrieve the actual pure checksum (reference value)
 
 /// Fictional struct for the moment / prob use an external library
-#[derive(Clone, Debug, PartialEq, PartialOrd, Hash)]
+#[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Checksum {
     value: Vec<u8>,
+}
+
+impl Checksum {
+    /// A checksum with no stored data.
+    pub const UNIT_CHECKSUM: Checksum = Checksum { value: vec![] };
 }
 
 impl std::fmt::Display for Checksum {
@@ -27,35 +32,57 @@ impl std::fmt::Display for Checksum {
 struct GameFile {
     path: PathBuf,
     expected_checksum: Checksum,
+    computed_checksum: Checksum,
 }
 
 impl GameFile {
-    pub fn compute_real_checksum(&self) -> Checksum {
+    pub fn compute_real_checksum(&mut self) -> Checksum {
         let mut hasher = Sha256::new();
         let bytes = match fs::read(&self.path) {
             Ok(bytes) => bytes,
-            Err(_) => return Checksum { value: vec![] },
+            Err(_) => return Checksum::UNIT_CHECKSUM,
         };
 
         hasher.update(&bytes);
 
-        let res = hasher.finalize();
+        // the checksum we get from the file
+        let checksum_bytes = hasher.finalize();
 
         // dbg variables
-        let hex_to_str: String = res.to_vec().iter().fold(String::new(), |mut out, b| {
-            write!(out, "{:02x}", b).expect("Checksum hex string");
-            out
-        });
+        let hex_to_str: String =
+            checksum_bytes
+                .to_vec()
+                .iter()
+                .fold(String::new(), |mut out, b| {
+                    write!(out, "{:02x}", b).expect("Checksum hex string");
+                    out
+                });
         dbg!(&self.path, hex_to_str);
         // end of dbg
 
+        self.computed_checksum = Checksum {
+            value: checksum_bytes.to_vec(),
+        };
+
         Checksum {
-            value: res.to_vec(),
+            value: checksum_bytes.to_vec(),
         }
     }
 
-    pub fn checksums_match(&self) -> bool {
-        self.expected_checksum == self.compute_real_checksum()
+    /// Makes a `ChecksumReport` for this GameFile.
+    pub fn get_report(&mut self) -> ChecksumReport {
+        // make the report
+        ChecksumReport {
+            file_path: self.path.clone(),
+            is_matching: self.checksums_match(),
+            got: self.computed_checksum.clone(),
+        }
+    }
+
+    /// Checks if the checksums are equal + compute the checksum of the file
+    pub fn checksums_match(&mut self) -> bool {
+        let real_checksum = self.compute_real_checksum();
+        self.expected_checksum == real_checksum
     }
 }
 
@@ -93,7 +120,8 @@ impl FileIntegrity {
                 } else {
                     let g_file: GameFile = GameFile {
                         path: p.to_path_buf(),
-                        expected_checksum: Checksum { value: vec![] }, // Placeholder
+                        expected_checksum: Checksum::UNIT_CHECKSUM, // Placeholder
+                        computed_checksum: Checksum::UNIT_CHECKSUM, // Placeholder
                     };
                     game_files.push(g_file);
                 }
@@ -106,22 +134,20 @@ impl FileIntegrity {
     }
 
     /// Checking if EVERY file is actully matching the expected checksum
-    pub fn check(&self, report: &mut Report) -> bool {
-        let mut res = true;
+    pub fn check(&mut self) -> Result<(), Vec<ChecksumReport>> {
+        let mut failed_files = vec![];
 
-        for f in self.game_files.iter() {
+        for f in self.game_files.iter_mut() {
             if !f.checksums_match() {
-                report.set_file_checksum(
-                    f.path.to_str().unwrap().to_string(),
-                    false,
-                    f.compute_real_checksum().to_string(), // wouldn't it be better to change
-                                                           // return type instead of calling twice this fn?
-                );
-                res = false;
-                return res; // to be removed later,  this is to stop the loop
+                failed_files.push(f.get_report());
             }
         }
-        res
+
+        if failed_files.is_empty() {
+            Ok(()) // no failures :3
+        } else {
+            Err(failed_files)
+        }
     }
 }
 
