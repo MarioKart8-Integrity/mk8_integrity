@@ -13,6 +13,7 @@ pub struct ChecksumReport {
 }
 
 /// A report of all the tool's analysis results.
+/// TODO: Add PC specs, connected hardware, PID of opened programs, etc.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Report {
     files_checksums: HashSet<ChecksumReport>,
