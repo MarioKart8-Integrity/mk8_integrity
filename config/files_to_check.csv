@@ -1,0 +1,6 @@
+path,is_game,is_update,is_dlc
+/content/common/mush/*.bin,1,1,0
+/content/**.kcl,,,
+/content/**course_muunt.byaml,,,
+/code/**,,,
+/meta/meta.xml,,,
