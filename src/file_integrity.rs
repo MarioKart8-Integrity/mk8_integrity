@@ -6,10 +6,7 @@ use std::{
 };
 use thiserror::Error;
 
-use crate::{
-    config::Config,
-    report::{ChecksumReport, Report},
-};
+use crate::{config::Config, report::Report};
 
 /// TODO: how to retrieve the actual pure checksum (reference value)
 
@@ -114,12 +111,12 @@ impl FileIntegrity {
 
         for f in self.game_files.iter() {
             if !f.checksums_match() {
-                report.set_file_checksum(&ChecksumReport::new(
+                report.set_file_checksum(
                     f.path.to_str().unwrap().to_string(),
                     false,
                     f.compute_real_checksum().to_string(), // wouldn't it be better to change
                                                            // return type instead of calling twice this fn?
-                ));
+                );
                 res = false;
                 return res; // to be removed later,  this is to stop the loop
             }

@@ -12,16 +12,6 @@ pub struct ChecksumReport {
     got: String,
 }
 
-impl ChecksumReport {
-    pub fn new(file_path: String, matching: bool, got: String) -> Self {
-        Self {
-            file_path,
-            matching,
-            got,
-        }
-    }
-}
-
 /// A report of all the tool's analysis results.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Report {
@@ -37,8 +27,12 @@ impl Report {
     }
 
     /// Adds a file's checksum results to the report.
-    pub fn set_file_checksum(&mut self, checksum_report: &ChecksumReport) {
-        self.files_checksums.insert(checksum_report.clone());
+    pub fn set_file_checksum(&mut self, file_path: String, matching: bool, got: String) {
+        self.files_checksums.insert(ChecksumReport {
+            file_path,
+            matching,
+            got,
+        });
     }
 
     /// Writes the report to disk.
